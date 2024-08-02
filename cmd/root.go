@@ -9,28 +9,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	id      int64
+	plat    string
+	account string
+	secret  string
+	issuer  string
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "2fa",
-	Short: "Two-factor authentication (2FA) verfity application",
+	Use:     "2fa",
+	Version: "dev@0.1.1",
+	Short:   "Two-factor authentication (2FA) verfity application",
 	Long: `A CLI application to show your Two-factor authentication (2FA) codes, help developers to verification.
 use Time-based one-time password (TOTP) algorithm to generates a one-time password (OTP), Authentication code automatically refreshed every second.
 Your data is all encrypted storage in local disk, and without any internet connection!!!
 examples and usage that application. For example:
 
 0. Init your application:
-	$ 2fa init --slat=your-secret-salt-str
+	$ 2fa init --pwd=your-possword
 
 1. Display the all 2FA code:
 	$ 2fa show
-
-2. Display the 2FA code for a specific account:
-	$ 2fa show --account=qiuweirun
-
-3. Display the 2FA code for a specific platform:
-	$ 2fa show --plat=GitHub
 	
-4. Add your 2FA account to application:
+2. Add your 2FA account to application:
 	$ 2fa add --plat=GitHub --account=qiuweirun --secret=Z7OV*********** --issuer=`,
 }
 
