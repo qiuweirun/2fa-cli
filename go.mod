@@ -2,6 +2,8 @@ module github.com/qiuweirun/2fa
 
 go 1.22.0
 
+require golang.org/x/crypto v0.25.0
+
 require (
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.7.1 // indirect
@@ -16,9 +18,10 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xlzd/gotp v0.1.0 // indirect
 	go.hein.dev/go-version v0.1.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
-	golang.org/x/term v0.17.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )

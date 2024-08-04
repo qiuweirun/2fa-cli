@@ -36,28 +36,16 @@ $ 2fa add --plat=GitHub --account=qiuweirun --secret=Z7OV*********** --issuer=`,
 			log.Fatal("args `secret` miss!")
 		}
 
-		// 检查文件是否存在
-		if !utils.CheckFileExist(consts.DB_PATH) {
-			log.Fatal("You should run init commond first!")
-		}
-		db, err := sql.Open("sqlite3", consts.DB_PATH)
+		db, err := sql.Open("sqlite3", dbFile)
 		if err != nil {
 			log.Fatal("Connect DB Err. " + err.Error())
 		}
 		defer db.Close()
 
-		// 查init的记录信息
-		var pwd, salt string
-		row := db.QueryRow("select password,salt from " + consts.TABLE_SYSTEM_NAME + " where id = 1")
-		err = row.Scan(&pwd, &salt)
-		if err != nil || len(pwd) <= 0 || len(salt) <= 0 {
-			log.Fatal("You should run init commond first!", err)
-		}
-
 		// plat + account看看存在了没有
 		var id int64
 		stmt, _ := db.Prepare("select id from " + consts.TABLE_ACCOUNT_NAME + " where plat=? and account=?")
-		row = stmt.QueryRow(plat, account)
+		row := stmt.QueryRow(plat, account)
 		row.Scan(&id)
 		if id > 0 {
 			log.Fatal("plat:" + plat + ", account:" + account + " is already exist!")

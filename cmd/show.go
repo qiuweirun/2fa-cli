@@ -8,6 +8,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/qiuweirun/2fa/cmd/consts"
@@ -34,24 +36,11 @@ var showCmd = &cobra.Command{
 1. Display the all 2FA code:
 	$ 2fa show`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// 检查文件是否存在
-		if !utils.CheckFileExist(consts.DB_PATH) {
-			log.Fatal("You should run init commond first!")
-		}
-
-		db, err := sql.Open("sqlite3", consts.DB_PATH)
+		db, err := sql.Open("sqlite3", dbFile)
 		if err != nil {
 			log.Fatal("Connect DB Err. " + err.Error())
 		}
 		defer db.Close()
-
-		// 查init的记录信息
-		var pwd, salt string
-		row := db.QueryRow("select password,salt from " + consts.TABLE_SYSTEM_NAME + " where id = 1")
-		err = row.Scan(&pwd, &salt)
-		if err != nil || len(pwd) <= 0 || len(salt) <= 0 {
-			log.Fatal("You should run init commond first!", err)
-		}
 
 		stmt, _ := db.Prepare("select plat, account, secret, issuer from " + consts.TABLE_ACCOUNT_NAME + " where 1")
 		rows, err := stmt.Query()
@@ -84,14 +73,22 @@ var showCmd = &cobra.Command{
 			return
 		}
 
-		// 每秒刷新计算
+		fmt.Println("Press 'Ctrl'+'C' to quit: ")
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		// out out right now!
+		renderData(toCalculTOTPCode(list), true)
+		// after 1s to refresh
 		timer := time.NewTimer(1 * time.Second)
 		for {
-			timer.Reset(1 * time.Second)
 			select {
+			case <-c:
+				fmt.Println("Bye Bye!")
+				return
 			case <-timer.C:
-				renderData(toCalculTOTPCode(list))
+				renderData(toCalculTOTPCode(list), false)
 			}
+			timer.Reset(1 * time.Second)
 		}
 	},
 }
@@ -115,9 +112,12 @@ func toCalculTOTPCode(list []totp) []totp {
 }
 
 // renderTable
-func renderData(list []totp) {
-	counter := len(list) + 1
-	fmt.Print("\033[" + fmt.Sprint(counter) + "A")
+func renderData(list []totp, first bool) {
+	if !first {
+		counter := len(list) + 1
+		fmt.Print("\033[" + fmt.Sprint(counter) + "A")
+	}
+
 	fmt.Printf("\033[30m\033[47m%-*s | %-*s | %-*s | %-*s | %-*s\033[0m\n", 10, "No#", 10, "Plat", 40, "Account", 10, "Code", 9, "remain(S)")
 	for k, v := range list {
 		color := ""

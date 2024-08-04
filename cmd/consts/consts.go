@@ -1,7 +1,9 @@
 package consts
 
 var (
-	DB_PATH             = "./2fa-cli.db"
+	DB_FILE      = "2fa-cli.db"
+	SESSION_FILE = ".2fa_app.ini"
+
 	TABLE_SYSTEM_NAME   = "system"
 	TABLE_SYSTEM_STRUCT = `
     CREATE TABLE IF NOT EXISTS system (

@@ -18,10 +18,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	pwd string
-)
-
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
@@ -29,9 +25,11 @@ var initCmd = &cobra.Command{
 	Long: `Init your 2fa app, initial password and DB. For example:
 
 2fa init --pwd=your-possword`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// nothing todo
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// 检查文件是否存在
-		if utils.CheckFileExist(consts.DB_PATH) {
+		if utils.CheckFileExist(dbFile) {
 			log.Fatal("Your 2fa app is already initialized.")
 		}
 
@@ -40,14 +38,14 @@ var initCmd = &cobra.Command{
 			log.Fatal("Your password should be greater than 3 characters.")
 		}
 
-		db, err := sql.Open("sqlite3", consts.DB_PATH)
+		db, err := sql.Open("sqlite3", dbFile)
 		if err != nil {
 			log.Fatal("Connect DB Err. " + err.Error())
 		}
 		defer db.Close()
 		_, err = db.Exec(consts.TABLE_SYSTEM_STRUCT)
 		if err != nil {
-			os.Remove(consts.DB_PATH)
+			os.Remove(dbFile)
 			log.Fatal("Create Table " + consts.TABLE_SYSTEM_NAME + " Err. " + err.Error())
 		}
 
@@ -58,25 +56,25 @@ var initCmd = &cobra.Command{
 
 		stmt, err := db.Prepare("INSERT INTO " + consts.TABLE_SYSTEM_NAME + "(password, salt, created) values(?,?,?)")
 		if err != nil {
-			os.Remove(consts.DB_PATH)
+			os.Remove(dbFile)
 			log.Fatal("Insert Table " + consts.TABLE_SYSTEM_NAME + " Err. " + err.Error())
 		}
 		res, err := stmt.Exec(password, uuid, created)
 		if err != nil {
-			os.Remove(consts.DB_PATH)
+			os.Remove(dbFile)
 			log.Fatal("Insert Table " + consts.TABLE_SYSTEM_NAME + " Err. " + err.Error())
 		}
 
 		id, err := res.LastInsertId()
 		if err != nil {
-			os.Remove(consts.DB_PATH)
+			os.Remove(dbFile)
 			log.Fatal("Init System Err. " + err.Error())
 		}
 
 		// 创建账号数据表
 		_, err = db.Exec(consts.TABLE_ACCOUNT_STRUCT)
 		if err != nil {
-			os.Remove(consts.DB_PATH)
+			os.Remove(dbFile)
 			log.Fatal("Create Table " + consts.TABLE_ACCOUNT_NAME + " Err. " + err.Error())
 		}
 
