@@ -76,7 +76,7 @@ var showCmd = &cobra.Command{
 		fmt.Println("Press 'Ctrl'+'C' to quit: ")
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
-		// out out right now!
+		// output right now!
 		renderData(toCalculTOTPCode(list), true)
 		// after 1s to refresh
 		timer := time.NewTimer(1 * time.Second)

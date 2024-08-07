@@ -73,7 +73,7 @@ For example:
 		// check user session
 		Conf = setting.NewConf()
 		if !Conf.IsVaildSession(pwd) {
-			fmt.Printf("Hello '\x1b[1m%v\x1b[0m', Your need login.\n", systemUser.Username)
+			fmt.Printf("Hi '\x1b[1m%v\x1b[0m'! Please login.\n", systemUser.Username)
 			loggedIn := false
 			for i := 0; i < 3; i++ {
 				fmt.Print("Your Password: ")
