@@ -83,7 +83,7 @@ var showCmd = &cobra.Command{
 		for {
 			select {
 			case <-c:
-				fmt.Println("Bye Bye!")
+				fmt.Println("Bye-Bye! Auto-Expire on: \033[1m" + Conf.GetSessionExpireTime() + "\033[0m")
 				return
 			case <-timer.C:
 				renderData(toCalculTOTPCode(list), false)
@@ -124,7 +124,7 @@ func renderData(list []totp, first bool) {
 		end := "\033[0m"
 		if v.delay <= 2 {
 			color = "\033[41m\033[37m"
-			end = "\033[5m"
+			end = "\033[7m"
 		} else if v.delay <= 5 {
 			color = "\033[41m\033[37m"
 		} else if v.delay <= 10 {

@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strconv"
 	"syscall"
 
 	"github.com/qiuweirun/2fa/cmd/consts"
@@ -36,7 +37,7 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "2fa",
-	Version: "dev@0.1.1",
+	Version: "prod@0.1.1",
 	Short:   "Two-factor authentication (2FA) verify application",
 	Long: `A CLI application to show your Two-factor authentication (2FA) codes, help developers to verification.
 use Time-based one-time password (TOTP) algorithm to generates a one-time password (OTP), Authentication code automatically refreshed every second.
@@ -50,7 +51,10 @@ For example:
 	$ 2fa show
 	
 2. Add your 2FA account to application:
-	$ 2fa add --plat=GitHub --account=qiuweirun --secret=Z7OV*********** --issuer=`,
+	$ 2fa add --plat=GitHub --account=qiuweirun --secret=Z7OV*********** --issuer=
+	
+3. logout, make session expiration:
+	$ 2fa logout`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if !utils.CheckFileExist(dbFile) {
 			log.Fatal("You should run init commond first!")
@@ -89,17 +93,15 @@ For example:
 			defaultLifeTime := 72 // unit hours
 			if loggedIn {
 				fmt.Print("\nLogin expiration(default " + fmt.Sprint(defaultLifeTime) + " hours):")
-				var input rune
-				_, err := fmt.Fscanf(os.Stdin, "%c", &input)
-				if err != nil {
-					log.Fatalf("read input err:", err)
-					os.Exit(0)
+				var inputString string
+				fmt.Scanln(&inputString)
+				if len(inputString) > 0 {
+					inputInt, err := strconv.Atoi(inputString)
+					if err == nil {
+						defaultLifeTime = inputInt
+					}
 				}
 				fmt.Println()
-				// todo~~~
-				if input != '\n' && input != '\r' {
-					defaultLifeTime = int(input)
-				}
 
 				// set session
 				if !Conf.SetSession(defaultLifeTime, pwd) {
